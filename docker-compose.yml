@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  infomatemind:
+    image: infomatemind
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    depends_on:
+      - ollama
+    ports:
+      - 8000:8000
+
+  ollama:
+    image: ollama/ollama
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      - MODEL_NAME=deepseek-r1
