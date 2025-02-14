@@ -1,26 +1,34 @@
 from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
-from ollama import chat
-from ollama import ChatResponse
-import asyncio
+from fastapi.middleware.cors import CORSMiddleware
 from ollama import AsyncClient
+from dotenv import load_dotenv
+import os
+import json
 
 app = FastAPI()
 
+# Allow CORS for all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 @app.get("/")
 async def root():
-    # response = send_message_to_ollama("hello")
-    return {"message": "Hello World"}
-
+    return {"message": "Hello World, Infomate Mind is running!"}
 
 @app.get("/stream")
-async def stream_message(message: str):
+async def stream(model: str, message: str):
     client = AsyncClient(
-        host='http://localhost:11434'
+        host=os.getenv('OLLAMA_HOST')
     )
-    async def message_stream():
-        message = {'role': 'user', 'content': 'Why is the sky blue?'}
-        async for part in await client.chat(model='deepseek-r1:1.5b', messages=[message], stream=True):
-            yield {"content": part['message']['content']}
+    async def messageStream(model: str, message: str):
+        message = {'role': 'user', 'content': message}
+        async for part in await client.chat(model=model, messages=[message], stream=True):
+            yield json.dumps({"content": part['message']['content']}).encode('utf-8')
 
-    return StreamingResponse(message_stream(), media_type="application/json")
+    return StreamingResponse(messageStream(model, message), media_type="application/json")

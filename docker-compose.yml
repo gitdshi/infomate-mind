@@ -13,10 +13,10 @@ services:
 
   ollama:
     image: ollama/ollama
-    build:
-      context: .
-      dockerfile: ./Dockerfile
+    container_name: ollama
+    volumes:
+      - ollama:/root/.ollama
     ports:
-      - 8000:8000
+      - 11434:11434
     environment:
-      - MODEL_NAME=deepseek-r1
+      - MODEL_NAME=deepseek-r1:1.5b

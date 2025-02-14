@@ -3,3 +3,4 @@ fastapi[all]==0.109.0
 uvicorn[standard]==0.27.0
 gunicorn==21.2.0
 ollama==0.4.7
+python-dotenv==1.0.1
