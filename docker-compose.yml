@@ -1,22 +1,74 @@
 version: '3.4'
 
 services:
-  infomatemind:
-    image: infomatemind
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    depends_on:
-      - ollama
-    ports:
-      - 8000:8000
+  #infomatemind:
+  #  image: infomatemind
+  #  build:
+  #    context: .
+  #    dockerfile: ./Dockerfile
+  #  depends_on:
+  #    - ollama
+  #  ports:
+  #    - 8000:8000
 
   ollama:
     image: ollama/ollama:0.5.11
     container_name: ollama
+    #if AMD GPU and rocm supported
+    #devices:
+    #  - "/dev/kfd"
+    #  - "/dev/dri"
     volumes:
-      - ollama:/root/.ollama
+      - ./ollama:/root/.ollama
     ports:
       - 11434:11434
     environment:
-      - MODEL_NAME=deepseek-r1:1.5b
+      - MODEL_NAME=deepseek-r1:8b
+    #command: ["/bin/bash", "-c", "ollama run deepseek-r1:1.5b"]
+  anythingllm:
+    image: mintplexlabs/anythingllm:1.4
+    container_name: anythingllm
+    depends_on:
+      - ollama
+    ports:
+    - "3001:3001"
+    cap_add:
+      - SYS_ADMIN
+    environment:
+    # Adjust for your environment
+      - STORAGE_DIR=/app/server/storage
+      - JWT_SECRET="make this a large list of random numbers and letters 20+"
+      - LLM_PROVIDER=ollama
+      - OLLAMA_BASE_PATH=http://host.docker.internal:11434
+      - OLLAMA_MODEL_PREF=deepseek-r1:8b
+      - OLLAMA_MODEL_TOKEN_LIMIT=4096
+      - EMBEDDING_ENGINE=ollama
+      - EMBEDDING_BASE_PATH=http://host.docker.internal:11434
+      - EMBEDDING_MODEL_PREF=nomic-embed-text:latest
+      - EMBEDDING_MODEL_MAX_CHUNK_LENGTH=8192
+      - VECTOR_DB=lancedb
+      - WHISPER_PROVIDER=local
+      - TTS_PROVIDER=native
+      - PASSWORDMINCHAR=8
+      # Add any other keys here for services or settings
+      # you can find in the docker/.env.example file
+    volumes:
+      #- anythingllm_storage:/app/server/storage
+      - ./anythingllm:/app/server/storage
+    restart: always
+
+volumes:
+  anythingllm_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: :./anythingllm
+
+  ollama_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: :./ollama
+
