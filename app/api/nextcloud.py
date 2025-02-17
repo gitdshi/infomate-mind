@@ -44,12 +44,6 @@ async def fileSync(file_sync: FileSync):
         await AnythingLLM.addEmbedding(file_location=file_location, workspace=file_sync.user)
 
         return {"message": f"File {file_name} synced!"}
-        #def iterfile(file_path: str):
-        #    with open(file_path, mode="rb") as file_like:
-        #        yield from file_like
-
-        # Return the file as a streaming response
-        #return StreamingResponse(iterfile(temp_file_path), media_type="application/octet-stream", headers={"Content-Disposition": f"attachment; filename={os.path.basename(file_path)}"})
     except Exception as e:
         print(e)
         raise HTTPException(status_code=404, detail=f"File sync failed: {e}")
