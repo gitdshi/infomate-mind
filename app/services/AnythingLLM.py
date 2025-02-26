@@ -60,7 +60,7 @@ async def streamChat(workspace: str, thread: str, message: str):
             'message': message
         }
         
-        async with client.stream(method="POST", url=url, headers=headers, json=payload, timeout=60.0) as response:
+        async with client.stream(method="POST", url=url, headers=headers, json=payload, timeout=300.0) as response:
             async for chunk in response.aiter_lines():
                 try:
                     # Remove the "data: " prefix if present
